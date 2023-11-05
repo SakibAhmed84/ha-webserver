@@ -1,23 +1,6 @@
-# Setup AWS provider
-
-terraform {
-    required_providers {
-      aws = {
-        source = "hashicorp/aws"
-        version = "~> 5.20.0"
-      }
-    }
-}
-
-provider "aws" {
-    region = "eu-west-2"
-    access_key = var.access_key # defined in secrets.tf
-    secret_key = var.secret_key # defined in secrets.tf
-}
-
 # Create a VPC
 resource "aws_vpc" "demo_vpc" {
-  cidr_block = "10.0.0.0/16"
+  cidr_block = var.vpc_cidr_block
 
   tags = {
     Name = "demo-vpc"
@@ -36,8 +19,8 @@ resource "aws_internet_gateway" "public_internet" {
 # Create a public subnet in AZ-A
 resource "aws_subnet" "demo_subnet_a" {
   vpc_id     = aws_vpc.demo_vpc.id
-  cidr_block = "10.0.1.0/24"
-  availability_zone = "eu-west-2a" 
+  cidr_block = var.subnet_a_cidr_block
+  availability_zone = var.az-a 
   map_public_ip_on_launch = true
 
   tags = {
@@ -48,8 +31,8 @@ resource "aws_subnet" "demo_subnet_a" {
 # Create a public subnet in AZ-B
 resource "aws_subnet" "demo_subnet_b" {
   vpc_id     = aws_vpc.demo_vpc.id
-  cidr_block = "10.0.2.0/24"
-  availability_zone = "eu-west-2b"
+  cidr_block = var.subnet_b_cidr_block
+  availability_zone = var.az-b
   map_public_ip_on_launch = true
 
   tags = {
@@ -62,7 +45,7 @@ resource "aws_route_table" "demo_vpc_public_route_table" {
   vpc_id = aws_vpc.demo_vpc.id
 
   route {
-    cidr_block = "0.0.0.0/0"
+    cidr_block = var.public_internet_cidr
     gateway_id = aws_internet_gateway.public_internet.id
   }
 }
@@ -90,13 +73,13 @@ resource "aws_security_group" "ha_webserver_security_group" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.public_internet_cidr]
   }
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.public_internet_cidr]
   }
 
   tags = {
@@ -113,8 +96,8 @@ resource "aws_iam_instance_profile" "ha_webserver_instance_profile" {
 # Create a launch configuration for EC2 instances
 resource "aws_launch_configuration" "ha_webserver_launch_configuration" {
   name_prefix          = "ha-webserver-"
-  image_id             = "ami-0cf6f2b898ac0b337" # Amazon Linux 2 AMI
-  instance_type        = "t2.micro"
+  image_id             = var.aws_ami # Amazon Linux AMI
+  instance_type        = var.aws_instance_type
   security_groups      = [aws_security_group.ha_webserver_security_group.id]
   iam_instance_profile = aws_iam_instance_profile.ha_webserver_instance_profile.name
 
