@@ -31,6 +31,7 @@
 
 # What's under the hood:
 
-- For this demo 2 EC2 instances are are span up with httpd running on them. The Website content is passed as user_data during the build through the launch configuration. It is a simple Hello World website and also was added with a JavaScript widget from the weather website forecast7.com to simulate a data fetch / call from a third party sercvice.
+- For this demo 2 EC2 instances are are span up  with httpd running behind an application Load Balancer. The Website content is passed as user_data during the build through the launch configuration. It is a simple Hello World website and also was added with a JavaScript widget from the weather website forecast7.com to simulate a data fetch / call from a third party sercvice.
+- The location / city of the weather forecast can be changed during build / by changing the code and redeploying.  
 
 # Change Log:
