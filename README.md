@@ -15,7 +15,7 @@
 # Pre-Requisites: 
 
 - AWS Account
-- IAM user with full Permission to AWSLambda, AWSDynamoDB, IAMFullAccess at least
+- IAM user with full Permission to create the above objects from the various services 
 - Access Key and Secret for the above User 
 - A Linux Machine / VM with Internet Access
 - Terraform v1.6.0
